@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Оборудование - Mini ERP</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>⚙️ Оборудование</h1>
+        <nav class="breadcrumb">
+            <a href="index.html">← Главная</a>
+        </nav>
+    </header>
+
+    <main class="content">
+        <section class="form-section">
+            <h2>Добавить новое оборудование</h2>
+            <form action="/api/v1/equipment" method="POST" class="form">
+                <div class="form-group">
+                    <label for="name">Название:</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="inventoryNumber">Инвентарный номер:</label>
+                    <input type="text" id="inventoryNumber" name="inventoryNumber" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="status">Статус:</label>
+                    <select id="status" name="status" required>
+                        <option value="ACTIVE">Активно</option>
+                        <option value="BROKEN">Сломано</option>
+                        <option value="MAINTENANCE">На обслуживании</option>
+                        <option value="DECOMMISSIONED">Выведено из эксплуатации</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="location">Местоположение:</label>
+                    <input type="text" id="location" name="location" required>
+                </div>
+
+                <button type="submit" class="btn-primary">Добавить оборудование</button>
+            </form>
+        </section>
+
+        <section class="info-section">
+            <h3>📋 Просмотр оборудования</h3>
+            <p>Список всего оборудования в формате JSON:</p>
+            <a href="/api/v1/equipment" target="_blank" class="btn-secondary">Открыть список оборудования</a>
+        </section>
+    </main>
+</div>
+</body>
+</html>
