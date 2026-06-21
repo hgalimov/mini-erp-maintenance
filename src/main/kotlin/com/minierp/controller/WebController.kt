@@ -2,13 +2,20 @@ package com.minierp.controller
 
 import com.minierp.domain.EquipmentStatus
 import com.minierp.domain.WorkOrderStatus
-import com.minierp.dto.*
+import com.minierp.dto.CreateEquipmentRequest
+import com.minierp.dto.CreateTechnicianRequest
+import com.minierp.dto.CreateWorkOrderRequest
 import com.minierp.service.EquipmentService
 import com.minierp.service.TechnicianService
 import com.minierp.service.WorkOrderService
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 
 @Controller
@@ -16,9 +23,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes
 class WebController(
     private val equipService: EquipmentService,
     private val techService: TechnicianService,
-    private val workOrderService: WorkOrderService
+    private val workOrderService: WorkOrderService,
 ) {
-
     @GetMapping
     fun index(model: Model): String {
         model.addAttribute("equipmentCount", equipService.getAll().size)
@@ -38,8 +44,11 @@ class WebController(
     }
 
     @PostMapping("/equipment")
-    fun createEquipment(@ModelAttribute newEquipment: CreateEquipmentRequest, redirect: RedirectAttributes): String {
-        return try {
+    fun createEquipment(
+        @ModelAttribute newEquipment: CreateEquipmentRequest,
+        redirect: RedirectAttributes,
+    ): String =
+        try {
             equipService.create(newEquipment)
             redirect.addFlashAttribute("success", "Equipment created successfully")
             "redirect:/equipment"
@@ -47,11 +56,14 @@ class WebController(
             redirect.addFlashAttribute("error", e.message)
             "redirect:/equipment"
         }
-    }
 
     @PostMapping("/equipment/{id}/status")
-    fun updateEquipmentStatus(@PathVariable id: Long, @RequestParam status: EquipmentStatus, redirect: RedirectAttributes): String {
-        return try {
+    fun updateEquipmentStatus(
+        @PathVariable id: Long,
+        @RequestParam status: EquipmentStatus,
+        redirect: RedirectAttributes,
+    ): String =
+        try {
             equipService.updateStatus(id, status)
             redirect.addFlashAttribute("success", "Status updated")
             "redirect:/equipment"
@@ -59,7 +71,6 @@ class WebController(
             redirect.addFlashAttribute("error", e.message)
             "redirect:/equipment"
         }
-    }
 
     // --- Technicians ---
     @GetMapping("/technicians")
@@ -70,8 +81,11 @@ class WebController(
     }
 
     @PostMapping("/technicians")
-    fun createTechnician(@ModelAttribute newTechnician: CreateTechnicianRequest, redirect: RedirectAttributes): String {
-        return try {
+    fun createTechnician(
+        @ModelAttribute newTechnician: CreateTechnicianRequest,
+        redirect: RedirectAttributes,
+    ): String =
+        try {
             techService.create(newTechnician)
             redirect.addFlashAttribute("success", "Technician added")
             "redirect:/technicians"
@@ -79,11 +93,13 @@ class WebController(
             redirect.addFlashAttribute("error", e.message)
             "redirect:/technicians"
         }
-    }
 
     @PostMapping("/technicians/{id}/toggle")
-    fun toggleTechnician(@PathVariable id: Long, redirect: RedirectAttributes): String {
-        return try {
+    fun toggleTechnician(
+        @PathVariable id: Long,
+        redirect: RedirectAttributes,
+    ): String =
+        try {
             techService.toggleActive(id)
             redirect.addFlashAttribute("success", "Status toggled")
             "redirect:/technicians"
@@ -91,7 +107,6 @@ class WebController(
             redirect.addFlashAttribute("error", e.message)
             "redirect:/technicians"
         }
-    }
 
     // --- Work Orders ---
     @GetMapping("/work-orders")
@@ -105,8 +120,11 @@ class WebController(
     }
 
     @PostMapping("/work-orders")
-    fun createWorkOrder(@ModelAttribute newOrder: CreateWorkOrderRequest, redirect: RedirectAttributes): String {
-        return try {
+    fun createWorkOrder(
+        @ModelAttribute newOrder: CreateWorkOrderRequest,
+        redirect: RedirectAttributes,
+    ): String =
+        try {
             workOrderService.create(newOrder)
             redirect.addFlashAttribute("success", "Work order created")
             "redirect:/work-orders"
@@ -114,11 +132,14 @@ class WebController(
             redirect.addFlashAttribute("error", e.message)
             "redirect:/work-orders"
         }
-    }
 
     @PostMapping("/work-orders/{id}/status")
-    fun updateWorkOrderStatus(@PathVariable id: Long, @RequestParam status: WorkOrderStatus, redirect: RedirectAttributes): String {
-        return try {
+    fun updateWorkOrderStatus(
+        @PathVariable id: Long,
+        @RequestParam status: WorkOrderStatus,
+        redirect: RedirectAttributes,
+    ): String =
+        try {
             workOrderService.updateStatus(id, status)
             redirect.addFlashAttribute("success", "Status updated")
             "redirect:/work-orders"
@@ -126,5 +147,4 @@ class WebController(
             redirect.addFlashAttribute("error", e.message)
             "redirect:/work-orders"
         }
-    }
 }

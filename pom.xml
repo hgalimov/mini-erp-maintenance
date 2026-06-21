@@ -164,28 +164,28 @@
         </configuration>
       </plugin>
 
-<!--      <plugin>-->
-<!--        <groupId>com.diffplug.spotless</groupId>-->
-<!--        <artifactId>spotless-maven-plugin</artifactId>-->
-<!--        <version>${spotless.version}</version>-->
-<!--        <configuration>-->
-<!--          <kotlin>-->
-<!--            <includes>-->
-<!--              <include>src/main/kotlin/**/*.kt</include>-->
-<!--              <include>src/test/kotlin/**/*.kt</include>-->
-<!--            </includes>-->
-<!--            <ktlint>-->
-<!--              <version>${ktlint.version}</version>-->
-<!--            </ktlint>-->
-<!--          </kotlin>-->
-<!--        </configuration>-->
-<!--        <executions>-->
-<!--          <execution>-->
-<!--            <phase>validate</phase>-->
-<!--            <goals><goal>check</goal></goals>-->
-<!--          </execution>-->
-<!--        </executions>-->
-<!--      </plugin>-->
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>${spotless.version}</version>
+        <configuration>
+          <kotlin>
+            <includes>
+              <include>src/main/kotlin/**/*.kt</include>
+              <include>src/test/kotlin/**/*.kt</include>
+            </includes>
+            <ktlint>
+              <version>${ktlint.version}</version>
+            </ktlint>
+          </kotlin>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>validate</phase>
+            <goals><goal>check</goal></goals>
+          </execution>
+        </executions>
+      </plugin>
 
     </plugins>
   </build>

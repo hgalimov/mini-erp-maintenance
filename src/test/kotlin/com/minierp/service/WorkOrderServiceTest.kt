@@ -57,10 +57,17 @@ class WorkOrderServiceTest {
         val technician = Technician(1L, "John", "Mechanic", false)
         val request = CreateWorkOrderRequest(1L, 1L, "Fix")
 
-        every { equipmentRepository.findById(1L) } returns Optional.of(equipment)
-        every { technicianRepository.findById(1L) } returns Optional.of(technician)
+        every {
+            equipmentRepository.findById(1L)
+        } returns Optional.of(equipment)
+        every {
+            technicianRepository.findById(1L)
+        } returns Optional.of(technician)
 
-        val exception = assertThrows<IllegalArgumentException> { service.create(request) }
+        val exception =
+            assertThrows<IllegalArgumentException> {
+                service.create(request)
+            }
         assertEquals("Cannot assign inactive technician", exception.message)
     }
 }
