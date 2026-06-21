@@ -1,4 +1,5 @@
 package com.minierp.controller
+
 import com.minierp.domain.EquipmentStatus
 import com.minierp.domain.WorkOrderStatus
 import com.minierp.dto.CreateEquipmentRequest
@@ -26,55 +27,66 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/v1")
 class ErpController(
-    private val equipService: EquipmentService,
-    private val techService: TechnicianService,
+    private val equipmentService: EquipmentService,
+    private val technicianService: TechnicianService,
     private val workOrderService: WorkOrderService,
 ) {
+    // ========== Equipment ==========
     @GetMapping("/equipment")
-    fun getAllEquipment() = ResponseEntity.ok(equipService.getAll())
+    fun getAllEquipment(): ResponseEntity<List<EquipmentResponse>> = ResponseEntity.ok(equipmentService.getAll())
 
     @GetMapping("/equipment/{id}")
     fun getEquipment(
         @PathVariable id: Long,
-    ) = ResponseEntity.ok(equipService.getById(id))
+    ): ResponseEntity<EquipmentResponse> = ResponseEntity.ok(equipmentService.getById(id))
 
     @PostMapping("/equipment")
     fun createEquipment(
-        @Valid @RequestBody req: CreateEquipmentRequest,
-    ) = ResponseEntity.status(HttpStatus.CREATED).body(equipService.create(req))
+        @Valid @RequestBody request: CreateEquipmentRequest,
+    ): ResponseEntity<EquipmentResponse> = ResponseEntity.status(HttpStatus.CREATED).body(equipmentService.create(request))
 
     @PatchMapping("/equipment/{id}/status")
     fun updateEquipmentStatus(
         @PathVariable id: Long,
         @RequestParam status: EquipmentStatus,
-    ) = ResponseEntity.ok(equipService.updateStatus(id, status))
+    ): ResponseEntity<EquipmentResponse> = ResponseEntity.ok(equipmentService.updateStatus(id, status))
 
+    // ========== Technicians ==========
     @GetMapping("/technicians")
-    fun getAllTechnicians() = ResponseEntity.ok(techService.getAll())
+    fun getAllTechnicians(): ResponseEntity<List<TechnicianResponse>> = ResponseEntity.ok(technicianService.getAll())
 
     @PostMapping("/technicians")
     fun createTechnician(
-        @Valid @RequestBody req: CreateTechnicianRequest,
-    ) = ResponseEntity.status(HttpStatus.CREATED).body(techService.create(req))
+        @Valid @RequestBody request: CreateTechnicianRequest,
+    ): ResponseEntity<TechnicianResponse> = ResponseEntity.status(HttpStatus.CREATED).body(technicianService.create(request))
 
     @PatchMapping("/technicians/{id}/toggle-active")
-    fun toggleTechnician(
+    fun toggleTechnicianStatus(
         @PathVariable id: Long,
-    ) = ResponseEntity.ok(techService.toggleActive(id))
+    ): ResponseEntity<TechnicianResponse> = ResponseEntity.ok(technicianService.toggleActive(id))
 
+    // ========== Work Orders ==========
     @GetMapping("/work-orders")
     fun getAllWorkOrders(
         @RequestParam(required = false) status: WorkOrderStatus?,
-    ) = ResponseEntity.ok(if (status != null) workOrderService.getByStatus(status) else workOrderService.getAll())
+    ): ResponseEntity<List<WorkOrderResponse>> {
+        val response: List<WorkOrderResponse> =
+            if (status != null) {
+                workOrderService.getByStatus(status)
+            } else {
+                workOrderService.getAll()
+            }
+        return ResponseEntity.ok(response)
+    }
 
     @PostMapping("/work-orders")
     fun createWorkOrder(
-        @Valid @RequestBody req: CreateWorkOrderRequest,
-    ) = ResponseEntity.status(HttpStatus.CREATED).body(workOrderService.create(req))
+        @Valid @RequestBody request: CreateWorkOrderRequest,
+    ): ResponseEntity<WorkOrderResponse> = ResponseEntity.status(HttpStatus.CREATED).body(workOrderService.create(request))
 
     @PatchMapping("/work-orders/{id}/status")
     fun updateWorkOrderStatus(
         @PathVariable id: Long,
-        @Valid @RequestBody req: UpdateWorkOrderStatusRequest,
-    ) = ResponseEntity.ok(workOrderService.updateStatus(id, req.status))
+        @Valid @RequestBody request: UpdateWorkOrderStatusRequest,
+    ): ResponseEntity<WorkOrderResponse> = ResponseEntity.ok(workOrderService.updateStatus(id, request.status))
 }

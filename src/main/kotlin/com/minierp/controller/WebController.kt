@@ -5,6 +5,8 @@ import com.minierp.domain.WorkOrderStatus
 import com.minierp.dto.CreateEquipmentRequest
 import com.minierp.dto.CreateTechnicianRequest
 import com.minierp.dto.CreateWorkOrderRequest
+import com.minierp.dto.EquipmentResponse
+import com.minierp.dto.TechnicianResponse
 import com.minierp.service.EquipmentService
 import com.minierp.service.TechnicianService
 import com.minierp.service.WorkOrderService
@@ -15,136 +17,168 @@ import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 
 @Controller
-@RequestMapping("/")
+@RequestMapping("/web")
 class WebController(
-    private val equipService: EquipmentService,
-    private val techService: TechnicianService,
+    private val equipmentService: EquipmentService,
+    private val technicianService: TechnicianService,
     private val workOrderService: WorkOrderService,
 ) {
-    @GetMapping
-    fun index(model: Model): String {
-        model.addAttribute("equipmentCount", equipService.getAll().size)
-        model.addAttribute("technicianCount", techService.getAll().size)
-        model.addAttribute("workOrderCount", workOrderService.getAll().size)
-        model.addAttribute("activeOrders", workOrderService.getByStatus(WorkOrderStatus.IN_PROGRESS).size)
-        return "index"
+    // ========== ГЛАВНАЯ СТРАНИЦА ==========
+    @GetMapping("/")
+    fun home(): String = "redirect:/web/home"
+
+    @GetMapping("/home")
+    fun homePage(): String = "index"
+
+    // ========== ОБОРУДОВАНИЕ ==========
+    @GetMapping("/equipment")
+    fun equipmentList(model: Model): String {
+        val equipment: List<EquipmentResponse> = equipmentService.getAll()
+        model.addAttribute("equipment", equipment)
+        return "equipment/list"
     }
 
-    // --- Equipment ---
-    @GetMapping("/equipment")
-    fun equipmentPage(model: Model): String {
-        model.addAttribute("equipment", equipService.getAll())
-        model.addAttribute("statuses", EquipmentStatus.values())
-        model.addAttribute("newEquipment", CreateEquipmentRequest("", "", EquipmentStatus.ACTIVE, ""))
-        return "equipment"
+    @GetMapping("/equipment/new")
+    fun newEquipmentForm(model: Model): String {
+        model.addAttribute("editMode", false)
+        return "equipment/form"
     }
 
     @PostMapping("/equipment")
     fun createEquipment(
-        @ModelAttribute newEquipment: CreateEquipmentRequest,
-        redirect: RedirectAttributes,
-    ): String =
+        @ModelAttribute name: String,
+        @ModelAttribute inventoryNumber: String,
+        @ModelAttribute status: EquipmentStatus,
+        @ModelAttribute location: String,
+        redirectAttributes: RedirectAttributes,
+    ): String {
         try {
-            equipService.create(newEquipment)
-            redirect.addFlashAttribute("success", "Equipment created successfully")
-            "redirect:/equipment"
+            val request = CreateEquipmentRequest(name, inventoryNumber, status, location)
+            equipmentService.create(request)
+            redirectAttributes.addFlashAttribute("success", "Оборудование успешно создано")
         } catch (e: Exception) {
-            redirect.addFlashAttribute("error", e.message)
-            "redirect:/equipment"
+            redirectAttributes.addFlashAttribute("error", "Ошибка: ${e.message}")
         }
-
-    @PostMapping("/equipment/{id}/status")
-    fun updateEquipmentStatus(
-        @PathVariable id: Long,
-        @RequestParam status: EquipmentStatus,
-        redirect: RedirectAttributes,
-    ): String =
-        try {
-            equipService.updateStatus(id, status)
-            redirect.addFlashAttribute("success", "Status updated")
-            "redirect:/equipment"
-        } catch (e: Exception) {
-            redirect.addFlashAttribute("error", e.message)
-            "redirect:/equipment"
-        }
-
-    // --- Technicians ---
-    @GetMapping("/technicians")
-    fun techniciansPage(model: Model): String {
-        model.addAttribute("technicians", techService.getAll())
-        model.addAttribute("newTechnician", CreateTechnicianRequest("", "", true))
-        return "technicians"
+        return "redirect:/web/equipment"
     }
+
+    @GetMapping("/equipment/{id}/edit")
+    fun editEquipmentForm(
+        @PathVariable id: Long,
+        model: Model,
+    ): String {
+        val equipment: EquipmentResponse = equipmentService.getById(id)
+        model.addAttribute("equipment", equipment)
+        model.addAttribute("editMode", true)
+        return "equipment/form"
+    }
+
+    @PostMapping("/equipment/{id}")
+    fun updateEquipment(
+        @PathVariable id: Long,
+        @ModelAttribute status: EquipmentStatus,
+        redirectAttributes: RedirectAttributes,
+    ): String {
+        try {
+            equipmentService.updateStatus(id, status)
+            redirectAttributes.addFlashAttribute("success", "Статус обновлён")
+        } catch (e: Exception) {
+            redirectAttributes.addFlashAttribute("error", "Ошибка: ${e.message}")
+        }
+        return "redirect:/web/equipment"
+    }
+
+    // ========== МАСТЕРА ==========
+    @GetMapping("/technicians")
+    fun techniciansList(model: Model): String {
+        val technicians: List<TechnicianResponse> = technicianService.getAll()
+        model.addAttribute("technicians", technicians)
+        return "technician/list"
+    }
+
+    @GetMapping("/technicians/new")
+    fun newTechnicianForm(): String = "technician/form"
 
     @PostMapping("/technicians")
     fun createTechnician(
-        @ModelAttribute newTechnician: CreateTechnicianRequest,
-        redirect: RedirectAttributes,
-    ): String =
+        @ModelAttribute fullName: String,
+        @ModelAttribute specialization: String,
+        @ModelAttribute isActive: Boolean?,
+        redirectAttributes: RedirectAttributes,
+    ): String {
         try {
-            techService.create(newTechnician)
-            redirect.addFlashAttribute("success", "Technician added")
-            "redirect:/technicians"
+            val request = CreateTechnicianRequest(fullName, specialization, isActive ?: true)
+            technicianService.create(request)
+            redirectAttributes.addFlashAttribute("success", "Мастер успешно создан")
         } catch (e: Exception) {
-            redirect.addFlashAttribute("error", e.message)
-            "redirect:/technicians"
+            redirectAttributes.addFlashAttribute("error", "Ошибка: ${e.message}")
         }
+        return "redirect:/web/technicians"
+    }
 
     @PostMapping("/technicians/{id}/toggle")
     fun toggleTechnician(
         @PathVariable id: Long,
-        redirect: RedirectAttributes,
-    ): String =
+        redirectAttributes: RedirectAttributes,
+    ): String {
         try {
-            techService.toggleActive(id)
-            redirect.addFlashAttribute("success", "Status toggled")
-            "redirect:/technicians"
+            technicianService.toggleActive(id)
+            redirectAttributes.addFlashAttribute("success", "Статус активности изменён")
         } catch (e: Exception) {
-            redirect.addFlashAttribute("error", e.message)
-            "redirect:/technicians"
+            redirectAttributes.addFlashAttribute("error", "Ошибка: ${e.message}")
         }
+        return "redirect:/web/technicians"
+    }
 
-    // --- Work Orders ---
+    // ========== НАРЯД-ЗАКАЗЫ ==========
     @GetMapping("/work-orders")
-    fun workOrdersPage(model: Model): String {
-        model.addAttribute("workOrders", workOrderService.getAll())
-        model.addAttribute("equipment", equipService.getAll())
-        model.addAttribute("technicians", techService.getAll())
-        model.addAttribute("statuses", WorkOrderStatus.values())
-        model.addAttribute("newOrder", CreateWorkOrderRequest(0, 0, ""))
-        return "work-orders"
+    fun workOrdersList(model: Model): String {
+        val workOrders = workOrderService.getAll()
+        model.addAttribute("workOrders", workOrders)
+        return "workorder/list"
+    }
+
+    @GetMapping("/work-orders/new")
+    fun newWorkOrderForm(model: Model): String {
+        val equipment: List<EquipmentResponse> = equipmentService.getAll()
+        val technicians: List<TechnicianResponse> = technicianService.getAll().filter { it.isActive }
+        model.addAttribute("equipment", equipment)
+        model.addAttribute("technicians", technicians)
+        return "workorder/form"
     }
 
     @PostMapping("/work-orders")
     fun createWorkOrder(
-        @ModelAttribute newOrder: CreateWorkOrderRequest,
-        redirect: RedirectAttributes,
-    ): String =
+        @ModelAttribute equipmentId: Long,
+        @ModelAttribute technicianId: Long,
+        @ModelAttribute description: String,
+        redirectAttributes: RedirectAttributes,
+    ): String {
         try {
-            workOrderService.create(newOrder)
-            redirect.addFlashAttribute("success", "Work order created")
-            "redirect:/work-orders"
+            val request = CreateWorkOrderRequest(equipmentId, technicianId, description)
+            workOrderService.create(request)
+            redirectAttributes.addFlashAttribute("success", "Наряд-заказ создан")
         } catch (e: Exception) {
-            redirect.addFlashAttribute("error", e.message)
-            "redirect:/work-orders"
+            redirectAttributes.addFlashAttribute("error", "Ошибка: ${e.message}")
         }
+        return "redirect:/web/work-orders"
+    }
 
     @PostMapping("/work-orders/{id}/status")
     fun updateWorkOrderStatus(
         @PathVariable id: Long,
-        @RequestParam status: WorkOrderStatus,
-        redirect: RedirectAttributes,
-    ): String =
+        @ModelAttribute status: WorkOrderStatus,
+        redirectAttributes: RedirectAttributes,
+    ): String {
         try {
             workOrderService.updateStatus(id, status)
-            redirect.addFlashAttribute("success", "Status updated")
-            "redirect:/work-orders"
+            redirectAttributes.addFlashAttribute("success", "Статус обновлён")
         } catch (e: Exception) {
-            redirect.addFlashAttribute("error", e.message)
-            "redirect:/work-orders"
+            redirectAttributes.addFlashAttribute("error", "Ошибка: ${e.message}")
         }
+        return "redirect:/web/work-orders"
+    }
 }

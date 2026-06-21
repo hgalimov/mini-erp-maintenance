@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Новый наряд-заказ - Mini ERP</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>📋 Создать наряд-заказ</h1>
+        <nav>
+            <a th:href="@{/web/work-orders}">← К списку</a>
+        </nav>
+    </header>
+    <main>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+        <form th:action="@{/web/work-orders}" method="post" class="form">
+            <label>Оборудование:
+                <select name="equipmentId" required>
+                    <option value="">-- Выберите оборудование --</option>
+                    <option th:each="eq : ${equipment}"
+                            th:value="${eq.id}"
+                            th:text="${eq.name} + ' (' + ${eq.inventoryNumber} + ')'"></option>
+                </select>
+            </label>
+            <label>Мастер:
+                <select name="technicianId" required>
+                    <option value="">-- Выберите мастера --</option>
+                    <option th:each="tech : ${technicians}"
+                            th:value="${tech.id}"
+                            th:text="${tech.fullName}"></option>
+                </select>
+            </label>
+            <label>Описание работ:
+                <textarea name="description" required rows="4"></textarea>
+            </label>
+            <button type="submit" class="btn btn-primary">Создать</button>
+        </form>
+    </main>
+</div>
+</body>
+</html>

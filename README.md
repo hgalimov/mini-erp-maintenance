@@ -1,6 +1,6 @@
 # 🔧 Mini ERP: Техобслуживание и ремонт
 
-Минималистичная ERP-система для управления техобслуживанием и ремонтом оборудования.
+Минималистичная ERP-система для управления техобслуживанием и ремонтом оборудования. Реализована на **Kotlin + Spring Boot 4.1.0 + Java 26 + Maven** с использованием шаблонизатора **Thymeleaf**.
 
 ## 🎯 Описание функциональности
 
@@ -12,13 +12,20 @@
 
 ### Возможности системы
 
+- ✅ **Полноценный веб-интерфейс (GUI)** на Thymeleaf с операциями CRUD
+- ✅ **REST API** для интеграции с другими системами
 - ✅ Учёт оборудования и мастеров
 - ✅ Создание наряд-заказов с автоматической сменой статуса оборудования
 - ✅ Управление жизненным циклом наряд-заказа
-- ✅ Веб-интерфейс на чистом HTML/CSS
-- ✅ REST API для интеграции с другими системами
 - ✅ Встроенная база данных H2 с веб-консолью
 - ✅ Автоматическое заполнение тестовыми данными при первом запуске
+
+### Два интерфейса работы
+
+| Интерфейс | Назначение | URL-префикс |
+|---|---|---|
+| 🖥 **Веб-интерфейс (GUI)** | Работа через браузер с HTML-формами | `/web/*` |
+| 🔌 **REST API** | Интеграция с другими системами (JSON) | `/api/v1/*` |
 
 ---
 
@@ -113,8 +120,8 @@ Server startup in [X] milliseconds
 
 Откройте браузер и перейдите по адресу:
 
-- Если переименовали в `ROOT.war`: **http://localhost:8080/**
-- Если оставили `mini-erp.war`: **http://localhost:8080/mini-erp/**
+- Если переименовали в `ROOT.war`: **http://localhost:8080/web/home**
+- Если оставили `mini-erp.war`: **http://localhost:8080/mini-erp/web/home**
 
 Вы должны увидеть главное меню приложения с тремя разделами:
 
@@ -141,48 +148,34 @@ cd /path/to/tomcat/bin
 
 ---
 
-## 🔧 Изменение порта (если 8080 занят)
+## 🖥 Веб-интерфейс (GUI)
 
-Если порт 8080 уже используется другой программой:
+Приложение предоставляет полноценный веб-интерфейс на базе **Thymeleaf** с операциями CRUD (создание, чтение, изменение) через HTML-формы.
 
-1. Откройте файл `C:\tomcat\conf\server.xml` в любом текстовом редакторе
-2. Найдите строку:
+### Основные страницы
 
-   ```xml
-   <Connector port="8080" protocol="HTTP/1.1" ...
-   ```
+| Ресурс | URL (если `ROOT.war`) | URL (если `mini-erp.war`) |
+|---|---|---|
+| 🏠 Главная страница | http://localhost:8080/web/home | http://localhost:8080/mini-erp/web/home |
+| ⚙️ Список оборудования | http://localhost:8080/web/equipment | http://localhost:8080/mini-erp/web/equipment |
+| ⚙️ Создать оборудование | http://localhost:8080/web/equipment/new | http://localhost:8080/mini-erp/web/equipment/new |
+| 👷 Список мастеров | http://localhost:8080/web/technicians | http://localhost:8080/mini-erp/web/technicians |
+| 👷 Создать мастера | http://localhost:8080/web/technicians/new | http://localhost:8080/mini-erp/web/technicians/new |
+| 📋 Список наряд-заказов | http://localhost:8080/web/work-orders | http://localhost:8080/mini-erp/web/work-orders |
+| 📋 Создать наряд-заказ | http://localhost:8080/web/work-orders/new | http://localhost:8080/mini-erp/web/work-orders/new |
+| 🗄 Консоль базы данных H2 | http://localhost:8080/h2-console | http://localhost:8080/mini-erp/h2-console |
 
-3. Замените `8080` на другой порт, например `9090`:
+### Возможности GUI
 
-   ```xml
-   <Connector port="9090" protocol="HTTP/1.1" ...
-   ```
-
-4. Сохраните файл и перезапустите Tomcat
-
-Теперь приложение будет доступно по адресу: **http://localhost:9090/**
-
----
-
-## 🌐 Полезные ссылки после запуска
-
-| Ресурс | URL |
-|---|---|
-| 🌐 Главная страница | http://localhost:8080/ |
-| 📡 API оборудования | http://localhost:8080/api/v1/equipment |
-| 👷 API мастеров | http://localhost:8080/api/v1/technicians |
-| 📋 API наряд-заказов | http://localhost:8080/api/v1/work-orders |
-| 🗄 Консоль базы данных H2 | http://localhost:8080/h2-console |
-
-Параметры подключения к H2:
-
-- **JDBC URL**: `jdbc:h2:mem:erpdb`
-- **User Name**: `sa`
-- **Password**: *(оставьте пустым)*
+- **Оборудование**: просмотр списка, создание нового, изменение статуса
+- **Мастера**: просмотр списка, создание нового, активация/деактивация
+- **Наряд-заказы**: просмотр списка, создание нового, смена статуса (`В работу` / `Завершить` / `Отменить`)
 
 ---
 
 ## 📡 REST API
+
+REST API предназначен для интеграции с другими системами и возвращает данные в формате JSON.
 
 ### Equipment (Оборудование)
 
@@ -212,6 +205,8 @@ cd /path/to/tomcat/bin
 
 ### Примеры запросов через curl
 
+> 💡 **Важно**: если WAR-файл **не** переименован в `ROOT.war`, добавьте префикс `/mini-erp` ко всем URL ниже. Например: `http://localhost:8080/mini-erp/api/v1/equipment`.
+
 **Создать оборудование:**
 
 ```bash
@@ -236,70 +231,53 @@ curl -X POST http://localhost:8080/api/v1/work-orders \
   -d '{"equipmentId":1,"technicianId":1,"description":"Замена масла"}'
 ```
 
----
+**Получить список оборудования:**
 
-## 🐛 Частые проблемы
+```bash
+curl http://localhost:8080/api/v1/equipment
+```
 
-### "java не является внутренней или внешней командой"
+**Отфильтровать наряд-заказы по статусу:**
 
-**Причина**: JDK не установлен или не добавлен в PATH.  
-**Решение**: переустановите JDK с галочкой "Set JAVA_HOME variable", перезагрузите компьютер.
-
-### "Port 8080 already in use"
-
-**Причина**: порт занят другой программой.  
-**Решение**: измените порт в `server.xml` (см. раздел "Изменение порта").
-
-### "404 Not Found" после запуска
-
-**Причина**: WAR не развернулся или неверный URL.  
-**Решение**:
-
-1. Проверьте, что файл `mini-erp.war` (или `ROOT.war`) лежит в `C:\tomcat\webapps\`
-2. Дождитесь появления распакованной папки с тем же именем
-3. Попробуйте URL: `http://localhost:8080/mini-erp/`
-
-### "500 Internal Server Error"
-
-**Причина**: ошибка в приложении.  
-**Решение**: откройте лог `C:\tomcat\logs\catalina.YYYY-MM-DD.log` и найдите текст ошибки.
-
-### "UnsupportedClassVersionError"
-
-**Причина**: на сервере установлена старая версия Java.  
-**Решение**: установите JDK 26+ и укажите его в переменной `JAVA_HOME`.
-
-### Приложение открывается, но не работает
-
-**Решение**: проверьте логи Tomcat в папке `C:\tomcat\logs\` — там будет подробное описание ошибки.
+```bash
+curl "http://localhost:8080/api/v1/work-orders?status=CREATED"
+```
 
 ---
 
-## 💡 Полезные команды
+## 🗄 Консоль базы данных H2
 
-**Проверить, запущен ли Tomcat (Windows):**
+Для прямого просмотра данных в базе откройте консоль H2:
 
-```bash
-netstat -ano | findstr :8080
-```
+- **URL**: `http://localhost:8080/h2-console` (или `http://localhost:8080/mini-erp/h2-console`)
+- **JDBC URL**: `jdbc:h2:mem:erpdb`
+- **User Name**: `sa`
+- **Password**: *(оставьте пустым)*
 
-**Посмотреть логи в реальном времени (PowerShell):**
+---
 
-```powershell
-Get-Content C:\tomcat\logs\catalina.*.log -Wait
-```
+## 🔄 Обновление приложения
 
-**Посмотреть логи в реальном времени (Linux / macOS):**
+Для обновления на новую версию:
 
-```bash
-tail -f /path/to/tomcat/logs/catalina.out
-```
+**Для Windows:**
 
-**Удалить старое развёртывание перед обновлением:**
-
-```bash
+```cmd
+C:\tomcat\bin\shutdown.bat
 del C:\tomcat\webapps\mini-erp.war
 rmdir /s /q C:\tomcat\webapps\mini-erp
+copy mini-erp.war C:\tomcat\webapps\
+C:\tomcat\bin\startup.bat
+```
+
+**Для Linux / macOS:**
+
+```bash
+./shutdown.sh
+rm -f /path/to/tomcat/webapps/mini-erp.war
+rm -rf /path/to/tomcat/webapps/mini-erp
+cp mini-erp.war /path/to/tomcat/webapps/
+./startup.sh
 ```
 
 ---
@@ -313,7 +291,6 @@ rmdir /s /q C:\tomcat\webapps\mini-erp
 3. Запускает сборку проекта с проверкой стиля кода
 4. Запускает все тесты
 
-
 > 🐧 **Примечание**: CI запускается на Ubuntu, даже если вы работаете на Windows. Это нормально — GitHub Actions использует облачные виртуальные машины.
 
 ---
@@ -326,4 +303,4 @@ MIT License. Свободное использование в учебных и 
 
 ## 👤 Автор
 
-Проект реализован на стеке **Kotlin + Spring Boot 3.4 + Java 26**.
+Проект реализован на стеке **Kotlin 2.4.0 + Spring Boot 4.1.0 + Java 26 + Thymeleaf + Maven**.

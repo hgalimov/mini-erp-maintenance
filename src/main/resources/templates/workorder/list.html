@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Наряд-заказы - Mini ERP</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>📋 Наряд-заказы</h1>
+        <nav>
+            <a th:href="@{/web/home}">← Главная</a>
+        </nav>
+    </header>
+    <main>
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+        <a th:href="@{/web/work-orders/new}" class="btn btn-primary">+ Создать наряд-заказ</a>
+
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Оборудование</th>
+                <th>Мастер</th>
+                <th>Описание</th>
+                <th>Статус</th>
+                <th>Создан</th>
+                <th>Действия</th>
+            </tr>
+            </thead>
+            <tbody>
+            <th:block th:if="${not #lists.isEmpty(workOrders)}">
+                <tr th:each="wo : ${workOrders}">
+                    <td th:text="${wo.id}"></td>
+                    <td th:text="${wo.equipmentName}"></td>
+                    <td th:text="${wo.technicianName}"></td>
+                    <td th:text="${wo.description}"></td>
+                    <td>
+                        <span class="status" th:classappend="${wo.status}" th:text="${wo.status}"></span>
+                    </td>
+                    <td th:text="${#temporals.format(wo.createdAt, 'dd.MM.yyyy HH:mm')}"></td>
+                    <td>
+                        <div th:if="${wo.status.name() != 'COMPLETED' and wo.status.name() != 'CANCELLED'}">
+                            <form th:action="@{/web/work-orders/{id}/status(id=${wo.id})}" method="post"
+                                  style="display:inline;">
+                                <input type="hidden" name="status" value="IN_PROGRESS">
+                                <button type="submit" class="btn btn-small btn-warning">В работу</button>
+                            </form>
+                            <form th:action="@{/web/work-orders/{id}/status(id=${wo.id})}" method="post"
+                                  style="display:inline;">
+                                <input type="hidden" name="status" value="COMPLETED">
+                                <button type="submit" class="btn btn-small btn-success">Завершить</button>
+                            </form>
+                            <form th:action="@{/web/work-orders/{id}/status(id=${wo.id})}" method="post"
+                                  style="display:inline;">
+                                <input type="hidden" name="status" value="CANCELLED">
+                                <button type="submit" class="btn btn-small btn-danger">Отменить</button>
+                            </form>
+                        </div>
+                        <em th:if="${wo.status.name() == 'COMPLETED' or wo.status.name() == 'CANCELLED'}">Завершён</em>
+                    </td>
+                </tr>
+            </th:block>
+            <tr th:if="${#lists.isEmpty(workOrders)}">
+                <td colspan="7" style="text-align: center; color: #999; padding: 30px;">
+                    Нет наряд-заказов. <a th:href="@{/web/work-orders/new}">Создать первый</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </main>
+</div>
+</body>
+</html>

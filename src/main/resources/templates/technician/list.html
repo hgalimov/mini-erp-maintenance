@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Мастера - Mini ERP</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>👷 Мастера</h1>
+        <nav>
+            <a th:href="@{/web/home}">← Главная</a>
+        </nav>
+    </header>
+    <main>
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+        <a th:href="@{/web/technicians/new}" class="btn btn-primary">+ Добавить мастера</a>
+
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>ФИО</th>
+                <th>Специализация</th>
+                <th>Статус</th>
+                <th>Действия</th>
+            </tr>
+            </thead>
+            <tbody>
+            <th:block th:if="${not #lists.isEmpty(technicians)}">
+                <tr th:each="tech : ${technicians}">
+                    <td th:text="${tech.id}"></td>
+                    <td th:text="${tech.fullName}"></td>
+                    <td th:text="${tech.specialization}"></td>
+                    <td>
+                        <span th:if="${tech.isActive}" style="color: green;">✅ Активен</span>
+                        <span th:if="${!tech.isActive}" style="color: red;">❌ Неактивен</span>
+                    </td>
+                    <td>
+                        <form th:action="@{/web/technicians/{id}/toggle(id=${tech.id})}" method="post"
+                              style="display:inline;">
+                            <button type="submit" class="btn btn-small"
+                                    th:text="${tech.isActive} ? 'Деактивировать' : 'Активировать'"></button>
+                        </form>
+                    </td>
+                </tr>
+            </th:block>
+            <tr th:if="${#lists.isEmpty(technicians)}">
+                <td colspan="5" style="text-align: center; color: #999; padding: 30px;">
+                    Нет мастеров. <a th:href="@{/web/technicians/new}">Добавить первого</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </main>
+</div>
+</body>
+</html>

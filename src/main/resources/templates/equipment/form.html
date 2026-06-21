@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Оборудование - Mini ERP</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1 th:text="${editMode} ? '⚙️ Изменить статус оборудования' : '⚙️ Новое оборудование'"></h1>
+        <nav>
+            <a th:href="@{/web/equipment}">← К списку</a>
+        </nav>
+    </header>
+    <main>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+        <!-- Режим создания -->
+        <form th:if="${!editMode}" th:action="@{/web/equipment}" method="post" class="form">
+            <label>Название:
+                <input type="text" name="name" required>
+            </label>
+            <label>Инвентарный номер:
+                <input type="text" name="inventoryNumber" required>
+            </label>
+            <label>Статус:
+                <select name="status" required>
+                    <option value="ACTIVE">Активно</option>
+                    <option value="BROKEN">Сломано</option>
+                    <option value="MAINTENANCE">На обслуживании</option>
+                    <option value="DECOMMISSIONED">Выведено из эксплуатации</option>
+                </select>
+            </label>
+            <label>Локация:
+                <input type="text" name="location" required>
+            </label>
+            <button type="submit" class="btn btn-primary">Создать</button>
+        </form>
+
+        <!-- Режим редактирования статуса -->
+        <form th:if="${editMode}" th:action="@{/web/equipment/{id}(id=${equipment.id})}" method="post" class="form">
+            <p><strong>Название:</strong> <span th:text="${equipment.name}"></span></p>
+            <p><strong>Инв. номер:</strong> <span th:text="${equipment.inventoryNumber}"></span></p>
+            <p><strong>Локация:</strong> <span th:text="${equipment.location}"></span></p>
+            <label>Статус:
+                <select name="status" required>
+                    <option value="ACTIVE" th:selected="${equipment.status.name() == 'ACTIVE'}">Активно</option>
+                    <option value="BROKEN" th:selected="${equipment.status.name() == 'BROKEN'}">Сломано</option>
+                    <option value="MAINTENANCE" th:selected="${equipment.status.name() == 'MAINTENANCE'}">На обслуживании</option>
+                    <option value="DECOMMISSIONED" th:selected="${equipment.status.name() == 'DECOMMISSIONED'}">Выведено из эксплуатации</option>
+                </select>
+            </label>
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+        </form>
+    </main>
+</div>
+</body>
+</html>

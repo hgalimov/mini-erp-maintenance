@@ -1,47 +1,33 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mini ERP - Главная</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 <div class="container">
     <header>
         <h1>🔧 Mini ERP: Техобслуживание и ремонт</h1>
-        <p class="subtitle">Система управления оборудованием и ремонтами</p>
+        <p>Система управления оборудованием и ремонтами</p>
     </header>
-
-    <main class="main-menu">
+    <main>
         <div class="menu-grid">
-            <a href="equipment.html" class="menu-card">
+            <a th:href="@{/web/equipment}" class="menu-card">
                 <div class="menu-icon">⚙️</div>
                 <h2>Оборудование</h2>
                 <p>Управление станками и оборудованием</p>
             </a>
-
-            <a href="technicians.html" class="menu-card">
+            <a th:href="@{/web/technicians}" class="menu-card">
                 <div class="menu-icon">👷</div>
                 <h2>Мастера</h2>
                 <p>Специалисты по ремонту</p>
             </a>
-
-            <a href="work-orders.html" class="menu-card">
+            <a th:href="@{/web/work-orders}" class="menu-card">
                 <div class="menu-icon">📋</div>
                 <h2>Наряд-заказы</h2>
                 <p>Заявки на обслуживание</p>
             </a>
-        </div>
-
-        <div class="info-section">
-            <h3>📊 API Endpoints</h3>
-            <p>Для просмотра данных в JSON формате:</p>
-            <ul>
-                <li><a href="/api/v1/equipment" target="_blank">/api/v1/equipment</a></li>
-                <li><a href="/api/v1/technicians" target="_blank">/api/v1/technicians</a></li>
-                <li><a href="/api/v1/work-orders" target="_blank">/api/v1/work-orders</a></li>
-            </ul>
         </div>
     </main>
 </div>

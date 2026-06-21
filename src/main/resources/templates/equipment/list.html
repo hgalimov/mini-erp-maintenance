@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Оборудование - Mini ERP</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>⚙️ Оборудование</h1>
+        <nav>
+            <a th:href="@{/web/home}">← Главная</a>
+        </nav>
+    </header>
+    <main>
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+        <a th:href="@{/web/equipment/new}" class="btn btn-primary">+ Добавить оборудование</a>
+
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Название</th>
+                <th>Инв. номер</th>
+                <th>Статус</th>
+                <th>Локация</th>
+                <th>Действия</th>
+            </tr>
+            </thead>
+            <tbody>
+            <th:block th:if="${not #lists.isEmpty(equipment)}">
+                <tr th:each="eq : ${equipment}">
+                    <td th:text="${eq.id}"></td>
+                    <td th:text="${eq.name}"></td>
+                    <td th:text="${eq.inventoryNumber}"></td>
+                    <td>
+                        <span class="status" th:classappend="${eq.status}" th:text="${eq.status}"></span>
+                    </td>
+                    <td th:text="${eq.location}"></td>
+                    <td>
+                        <a th:href="@{/web/equipment/{id}/edit(id=${eq.id})}" class="btn btn-small">Изменить статус</a>
+                    </td>
+                </tr>
+            </th:block>
+            <tr th:if="${#lists.isEmpty(equipment)}">
+                <td colspan="6" style="text-align: center; color: #999; padding: 30px;">
+                    Нет оборудования. <a th:href="@{/web/equipment/new}">Добавить первое</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </main>
+</div>
+</body>
+</html>

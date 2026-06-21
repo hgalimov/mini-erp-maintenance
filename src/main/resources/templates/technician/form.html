@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Новый мастер - Mini ERP</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>👷 Добавить мастера</h1>
+        <nav>
+            <a th:href="@{/web/technicians}">← К списку</a>
+        </nav>
+    </header>
+    <main>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+        <form th:action="@{/web/technicians}" method="post" class="form">
+            <label>ФИО:
+                <input type="text" name="fullName" required>
+            </label>
+            <label>Специализация:
+                <input type="text" name="specialization" required>
+            </label>
+            <label>
+                <input type="checkbox" name="isActive" value="true" checked> Активен
+            </label>
+            <button type="submit" class="btn btn-primary">Создать</button>
+        </form>
+    </main>
+</div>
+</body>
+</html>
