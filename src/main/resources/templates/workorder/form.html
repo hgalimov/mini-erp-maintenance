@@ -20,17 +20,21 @@
             <label>Оборудование:
                 <select name="equipmentId" required>
                     <option value="">-- Выберите оборудование --</option>
-                    <option th:each="eq : ${equipment}"
-                            th:value="${eq.id}"
-                            th:text="${eq.name} + ' (' + ${eq.inventoryNumber} + ')'"></option>
+                    <th:block th:if="${equipment != null and !#lists.isEmpty(equipment)}">
+                        <option th:each="eq : ${equipment}"
+                                th:value="${eq.id}"
+                                th:text="${eq.name} + ' (' + ${eq.inventoryNumber} + ')'"></option>
+                    </th:block>
                 </select>
             </label>
             <label>Мастер:
                 <select name="technicianId" required>
                     <option value="">-- Выберите мастера --</option>
-                    <option th:each="tech : ${technicians}"
-                            th:value="${tech.id}"
-                            th:text="${tech.fullName}"></option>
+                    <th:block th:if="${technicians != null and !#lists.isEmpty(technicians)}">
+                        <option th:each="tech : ${technicians}"
+                                th:value="${tech.id}"
+                                th:text="${tech.fullName}"></option>
+                    </th:block>
                 </select>
             </label>
             <label>Описание работ:

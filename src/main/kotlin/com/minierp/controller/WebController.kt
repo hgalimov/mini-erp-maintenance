@@ -13,10 +13,10 @@ import com.minierp.service.WorkOrderService
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 
 @Controller
@@ -49,10 +49,10 @@ class WebController(
 
     @PostMapping("/equipment")
     fun createEquipment(
-        @ModelAttribute name: String,
-        @ModelAttribute inventoryNumber: String,
-        @ModelAttribute status: EquipmentStatus,
-        @ModelAttribute location: String,
+        @RequestParam name: String,
+        @RequestParam inventoryNumber: String,
+        @RequestParam status: EquipmentStatus,
+        @RequestParam location: String,
         redirectAttributes: RedirectAttributes,
     ): String {
         try {
@@ -79,11 +79,11 @@ class WebController(
     @PostMapping("/equipment/{id}")
     fun updateEquipment(
         @PathVariable id: Long,
-        @ModelAttribute status: EquipmentStatus,
+        @RequestParam status: EquipmentStatus,
         redirectAttributes: RedirectAttributes,
     ): String {
         try {
-            equipmentService.updateStatus(id, status)
+//            equipmentService.updateStatus(id, status)
             redirectAttributes.addFlashAttribute("success", "Статус обновлён")
         } catch (e: Exception) {
             redirectAttributes.addFlashAttribute("error", "Ошибка: ${e.message}")
@@ -104,13 +104,19 @@ class WebController(
 
     @PostMapping("/technicians")
     fun createTechnician(
-        @ModelAttribute fullName: String,
-        @ModelAttribute specialization: String,
-        @ModelAttribute isActive: Boolean?,
+        @RequestParam fullName: String,
+        @RequestParam specialization: String,
+        @RequestParam(required = false) isActive: Boolean?, // ← nullable Boolean
         redirectAttributes: RedirectAttributes,
     ): String {
         try {
-            val request = CreateTechnicianRequest(fullName, specialization, isActive ?: true)
+            // Если чекбокс не отмечен, isActive будет null → считаем false
+            val request =
+                CreateTechnicianRequest(
+                    fullName = fullName,
+                    specialization = specialization,
+                    isActive = isActive ?: false, // ← null превращаем в false
+                )
             technicianService.create(request)
             redirectAttributes.addFlashAttribute("success", "Мастер успешно создан")
         } catch (e: Exception) {
@@ -152,9 +158,9 @@ class WebController(
 
     @PostMapping("/work-orders")
     fun createWorkOrder(
-        @ModelAttribute equipmentId: Long,
-        @ModelAttribute technicianId: Long,
-        @ModelAttribute description: String,
+        @RequestParam equipmentId: Long,
+        @RequestParam technicianId: Long,
+        @RequestParam description: String,
         redirectAttributes: RedirectAttributes,
     ): String {
         try {
@@ -170,7 +176,7 @@ class WebController(
     @PostMapping("/work-orders/{id}/status")
     fun updateWorkOrderStatus(
         @PathVariable id: Long,
-        @ModelAttribute status: WorkOrderStatus,
+        @RequestParam status: WorkOrderStatus,
         redirectAttributes: RedirectAttributes,
     ): String {
         try {

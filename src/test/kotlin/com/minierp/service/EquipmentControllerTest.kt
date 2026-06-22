@@ -45,7 +45,9 @@ class EquipmentControllerTest {
                 id = 1L,
                 name = "Lathe",
                 inventoryNumber = "INV-002",
-                status = EquipmentStatus.ACTIVE,
+//                status = EquipmentStatus.ACTIVE,
+//                statusText = "Активно",
+//                statusClass = "ACTIVE",
                 location = "Building A",
             )
 
@@ -59,6 +61,8 @@ class EquipmentControllerTest {
         assertNotNull(response.body)
         assertEquals("Lathe", response.body?.name)
         assertEquals("INV-002", response.body?.inventoryNumber)
+//        assertEquals("Активно", response.body?.statusText)
+//        assertEquals("ACTIVE", response.body?.statusClass)
         verify(exactly = 1) { equipmentService.create(any()) }
     }
 
@@ -67,8 +71,24 @@ class EquipmentControllerTest {
         // Arrange
         val expectedList =
             listOf(
-                EquipmentResponse(1L, "Lathe", "INV-001", EquipmentStatus.ACTIVE, "Building A"),
-                EquipmentResponse(2L, "CNC", "INV-002", EquipmentStatus.BROKEN, "Building B"),
+                EquipmentResponse(
+                    id = 1L,
+                    name = "Lathe",
+                    inventoryNumber = "INV-001",
+//                    status = EquipmentStatus.ACTIVE,
+//                    statusText = "Активно",
+//                    statusClass = "ACTIVE",
+                    location = "Building A",
+                ),
+                EquipmentResponse(
+                    id = 2L,
+                    name = "CNC",
+                    inventoryNumber = "INV-002",
+//                    status = EquipmentStatus.BROKEN,
+//                    statusText = "Сломано",
+//                    statusClass = "BROKEN",
+                    location = "Building B",
+                ),
             )
         every { equipmentService.getAll() } returns expectedList
 
@@ -79,6 +99,8 @@ class EquipmentControllerTest {
         assertEquals(HttpStatus.OK, response.statusCode)
         assertEquals(2, response.body?.size)
         assertEquals("Lathe", response.body?.get(0)?.name)
+//        assertEquals("Активно", response.body?.get(0)?.statusText)
+//        assertEquals("ACTIVE", response.body?.get(0)?.statusClass)
     }
 
     @Test

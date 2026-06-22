@@ -30,14 +30,14 @@
             </tr>
             </thead>
             <tbody>
-            <th:block th:if="${not #lists.isEmpty(technicians)}">
+            <th:block th:if="${technicians != null and not #lists.isEmpty(technicians)}">
                 <tr th:each="tech : ${technicians}">
                     <td th:text="${tech.id}"></td>
                     <td th:text="${tech.fullName}"></td>
                     <td th:text="${tech.specialization}"></td>
                     <td>
-                        <span th:if="${tech.isActive}" style="color: green;">✅ Активен</span>
-                        <span th:if="${!tech.isActive}" style="color: red;">❌ Неактивен</span>
+                        <span th:if="${tech.isActive == true}" style="color: green;">✅ Активен</span>
+                        <span th:if="${tech.isActive != true}" style="color: red;">❌ Неактивен</span>
                     </td>
                     <td>
                         <form th:action="@{/web/technicians/{id}/toggle(id=${tech.id})}" method="post"

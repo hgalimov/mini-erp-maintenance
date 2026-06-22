@@ -31,13 +31,15 @@
             </tr>
             </thead>
             <tbody>
-            <th:block th:if="${not #lists.isEmpty(equipment)}">
+            <th:block th:if="${equipment != null and not #lists.isEmpty(equipment)}">
                 <tr th:each="eq : ${equipment}">
                     <td th:text="${eq.id}"></td>
                     <td th:text="${eq.name}"></td>
                     <td th:text="${eq.inventoryNumber}"></td>
                     <td>
-                        <span class="status" th:classappend="${eq.status}" th:text="${eq.status}"></span>
+                        <span class="status"
+                              th:classappend="${eq.statusClass}"
+                              th:text="${eq.statusText}"></span>
                     </td>
                     <td th:text="${eq.location}"></td>
                     <td>

@@ -32,14 +32,16 @@
             </tr>
             </thead>
             <tbody>
-            <th:block th:if="${not #lists.isEmpty(workOrders)}">
+            <th:block th:if="${workOrders != null and not #lists.isEmpty(workOrders)}">
                 <tr th:each="wo : ${workOrders}">
                     <td th:text="${wo.id}"></td>
                     <td th:text="${wo.equipmentName}"></td>
                     <td th:text="${wo.technicianName}"></td>
                     <td th:text="${wo.description}"></td>
                     <td>
-                        <span class="status" th:classappend="${wo.status}" th:text="${wo.status}"></span>
+                        <span class="status"
+                              th:classappend="${wo.statusClass}"
+                              th:text="${wo.statusText}"></span>
                     </td>
                     <td th:text="${#temporals.format(wo.createdAt, 'dd.MM.yyyy HH:mm')}"></td>
                     <td>
