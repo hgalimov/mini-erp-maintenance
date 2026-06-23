@@ -1,7 +1,11 @@
 package com.minierp.service
-import com.minierp.domain.EquipmentStatus
+
+import com.minierp.domain.Equipment
+import com.minierp.domain.Technician
+import com.minierp.domain.WorkOrder
 import com.minierp.domain.WorkOrderStatus
 import com.minierp.dto.CreateWorkOrderRequest
+import com.minierp.dto.UpdateWorkOrderStatusRequest
 import com.minierp.dto.WorkOrderResponse
 import com.minierp.repository.EquipmentRepository
 import com.minierp.repository.TechnicianRepository
@@ -11,68 +15,84 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
 @Service
+@Transactional
 class WorkOrderService(
-    private val workOrderRepo: WorkOrderRepository,
-    private val equipRepo: EquipmentRepository,
-    private val techRepo: TechnicianRepository,
+    private val workOrderRepository: WorkOrderRepository,
+    private val equipmentRepository: EquipmentRepository,
+    private val technicianRepository: TechnicianRepository,
 ) {
-    @Transactional(readOnly = true)
-    fun getAll() = workOrderRepo.findAll().map { WorkOrderResponse.from(it) }
+    fun create(request: CreateWorkOrderRequest): WorkOrderResponse {
+        val equipment =
+            equipmentRepository
+                .findById(request.equipmentId)
+                .orElseThrow { throw RuntimeException("Equipment not found with id: ${request.equipmentId}") }
 
-    @Transactional(readOnly = true)
-    fun getByStatus(status: WorkOrderStatus) = workOrderRepo.findAllByStatus(status).map { WorkOrderResponse.from(it) }
+        val technician =
+            technicianRepository
+                .findById(request.technicianId)
+                .orElseThrow { throw RuntimeException("Technician not found with id: ${request.technicianId}") }
 
-    @Transactional
-    fun create(req: CreateWorkOrderRequest): WorkOrderResponse {
-        val equip = equipRepo.findById(req.equipmentId).orElseThrow { IllegalArgumentException("Equipment not found") }
-        val tech = techRepo.findById(req.technicianId).orElseThrow { IllegalArgumentException("Technician not found") }
-        if (!tech.isActive) throw IllegalArgumentException("Cannot assign inactive technician")
-
-        equipRepo.save(equip.copy(status = EquipmentStatus.MAINTENANCE))
-        val order =
-            workOrderRepo.save(
-                com.minierp.domain.WorkOrder(
-                    equipment = equip,
-                    technician = tech,
-                    description = req.description,
-                    status = WorkOrderStatus.CREATED,
-                ),
-            )
-        return WorkOrderResponse.from(order)
-    }
-
-    @Transactional
-    fun updateStatus(
-        id: Long,
-        newStatus: WorkOrderStatus,
-    ): WorkOrderResponse {
-        val order = workOrderRepo.findById(id).orElseThrow { IllegalArgumentException("Work order not found") }
-        if (order.status == WorkOrderStatus.COMPLETED || order.status == WorkOrderStatus.CANCELLED) {
-            throw IllegalArgumentException("Cannot change completed/cancelled order")
+        if (!technician.isActive) {
+            throw IllegalArgumentException("Cannot assign work order to inactive technician")
         }
 
-        val finalStatus =
-            if (newStatus == WorkOrderStatus.COMPLETED) {
-                equipRepo.save(order.equipment.copy(status = EquipmentStatus.ACTIVE))
-                WorkOrderStatus.COMPLETED
-            } else {
-                newStatus
+        // When creating, change equipment status to MAINTENANCE
+        equipmentRepository.save(equipment.copy(status = "MAINTENANCE"))
+
+        val entity =
+            WorkOrder(
+                equipment = equipment,
+                technician = technician,
+                description = request.description,
+                status = WorkOrderStatus.CREATED, // строка
+            )
+        val saved = workOrderRepository.save(entity)
+        return WorkOrderResponse.from(saved)
+    }
+
+    fun getAll(): List<WorkOrderResponse> = workOrderRepository.findAll().map { WorkOrderResponse.from(it) }
+
+    fun getByStatus(status: String): List<WorkOrderResponse> {
+        require(WorkOrderStatus.isValid(status)) { "Invalid work order status: $status" }
+        return workOrderRepository.findAllByStatus(status).map { WorkOrderResponse.from(it) }
+    }
+
+    fun updateStatus(
+        id: Long,
+        newStatus: String,
+    ): WorkOrderResponse {
+        require(WorkOrderStatus.isValid(newStatus)) { "Invalid work order status: $newStatus" }
+
+        val workOrder =
+            workOrderRepository
+                .findById(id)
+                .orElseThrow { throw RuntimeException("WorkOrder not found with id: $id") }
+
+        // Prevent changing status of completed/cancelled orders
+        if (setOf(WorkOrderStatus.COMPLETED, WorkOrderStatus.CANCELLED).contains(workOrder.status)) {
+            throw IllegalArgumentException("Cannot change status of completed/cancelled work order")
+        }
+
+        val updated =
+            when (newStatus) {
+                WorkOrderStatus.COMPLETED -> {
+                    // Change equipment back to ACTIVE when work order is completed
+                    if (workOrder.equipment.status != "MAINTENANCE") {
+                        // Just in case, ensure equipment is in MAINTENANCE before completing
+                        equipmentRepository.save(workOrder.equipment.copy(status = "MAINTENANCE"))
+                    }
+                    workOrder.copy(
+                        status = newStatus,
+                        completedAt = LocalDateTime.now(),
+                    )
+                }
+
+                else -> {
+                    workOrder.copy(status = newStatus)
+                }
             }
 
-        return WorkOrderResponse.from(
-            workOrderRepo.save(
-                order.copy(
-                    status = finalStatus,
-                    completedAt =
-                        if (finalStatus ==
-                            WorkOrderStatus.COMPLETED
-                        ) {
-                            LocalDateTime.now()
-                        } else {
-                            order.completedAt
-                        },
-                ),
-            ),
-        )
+        val saved = workOrderRepository.save(updated)
+        return WorkOrderResponse.from(saved)
     }
 }

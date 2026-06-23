@@ -31,6 +31,11 @@
             </tr>
             </thead>
             <tbody>
+            <tr th:if="${equipment == null or and #lists.isEmpty(equipment)}">
+                <td colspan="6" style="text-align: center; color: #999; padding: 30px;">
+                    Нет оборудования. <a th:href="@{/web/equipment/new}">Добавить первое</a>
+                </td>
+            </tr>
             <th:block th:if="${equipment != null and not #lists.isEmpty(equipment)}">
                 <tr th:each="eq : ${equipment}">
                     <td th:text="${eq.id}"></td>
@@ -47,11 +52,6 @@
                     </td>
                 </tr>
             </th:block>
-            <tr th:if="${#lists.isEmpty(equipment)}">
-                <td colspan="6" style="text-align: center; color: #999; padding: 30px;">
-                    Нет оборудования. <a th:href="@{/web/equipment/new}">Добавить первое</a>
-                </td>
-            </tr>
             </tbody>
         </table>
     </main>

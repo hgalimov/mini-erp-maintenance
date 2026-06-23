@@ -10,9 +10,11 @@ import jakarta.persistence.Table
 @Entity
 @Table(name = "technicians")
 data class Technician(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
-    @Column(nullable = false) val fullName: String,
-    @Column(nullable = false) val specialization: String,
-    @Column(nullable = false) val isActive: Boolean = true,
+    val fullName: String,
+    val specialization: String,
+    @Column(name = "is_active", nullable = false)
+    val isActive: Boolean = true,
 )

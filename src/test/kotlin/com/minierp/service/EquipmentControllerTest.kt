@@ -1,6 +1,5 @@
 package com.minierp.controller
 
-import com.minierp.domain.EquipmentStatus
 import com.minierp.dto.CreateEquipmentRequest
 import com.minierp.dto.EquipmentResponse
 import com.minierp.service.EquipmentService
@@ -37,7 +36,7 @@ class EquipmentControllerTest {
             CreateEquipmentRequest(
                 name = "Lathe",
                 inventoryNumber = "INV-002",
-                status = EquipmentStatus.ACTIVE,
+                status = "ACTIVE", // строка
                 location = "Building A",
             )
         val expectedResponse =
@@ -45,9 +44,8 @@ class EquipmentControllerTest {
                 id = 1L,
                 name = "Lathe",
                 inventoryNumber = "INV-002",
-//                status = EquipmentStatus.ACTIVE,
-//                statusText = "Активно",
-//                statusClass = "ACTIVE",
+                statusText = "Активно",
+                statusClass = "ACTIVE",
                 location = "Building A",
             )
 
@@ -61,8 +59,8 @@ class EquipmentControllerTest {
         assertNotNull(response.body)
         assertEquals("Lathe", response.body?.name)
         assertEquals("INV-002", response.body?.inventoryNumber)
-//        assertEquals("Активно", response.body?.statusText)
-//        assertEquals("ACTIVE", response.body?.statusClass)
+        assertEquals("Активно", response.body?.statusText)
+        assertEquals("ACTIVE", response.body?.statusClass)
         verify(exactly = 1) { equipmentService.create(any()) }
     }
 
@@ -75,18 +73,16 @@ class EquipmentControllerTest {
                     id = 1L,
                     name = "Lathe",
                     inventoryNumber = "INV-001",
-//                    status = EquipmentStatus.ACTIVE,
-//                    statusText = "Активно",
-//                    statusClass = "ACTIVE",
+                    statusText = "Активно",
+                    statusClass = "ACTIVE",
                     location = "Building A",
                 ),
                 EquipmentResponse(
                     id = 2L,
                     name = "CNC",
                     inventoryNumber = "INV-002",
-//                    status = EquipmentStatus.BROKEN,
-//                    statusText = "Сломано",
-//                    statusClass = "BROKEN",
+                    statusText = "Сломано",
+                    statusClass = "BROKEN",
                     location = "Building B",
                 ),
             )
@@ -99,14 +95,14 @@ class EquipmentControllerTest {
         assertEquals(HttpStatus.OK, response.statusCode)
         assertEquals(2, response.body?.size)
         assertEquals("Lathe", response.body?.get(0)?.name)
-//        assertEquals("Активно", response.body?.get(0)?.statusText)
-//        assertEquals("ACTIVE", response.body?.get(0)?.statusClass)
+        assertEquals("Активно", response.body?.get(0)?.statusText)
+        assertEquals("ACTIVE", response.body?.get(0)?.statusClass)
     }
 
     @Test
     fun `should throw exception when service fails`() {
         // Arrange
-        val request = CreateEquipmentRequest("Lathe", "INV-DUP", EquipmentStatus.ACTIVE, "A")
+        val request = CreateEquipmentRequest("Lathe", "INV-DUP", "ACTIVE", "A")
         every { equipmentService.create(any()) } throws IllegalArgumentException("Inventory number exists")
 
         // Act & Assert

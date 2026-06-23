@@ -25,10 +25,11 @@ mini-erp-maintenance/
 │ │ │ ├── ErpController.kt # REST API (JSON)
 │ │ │ └── WebController.kt # Веб-интерфейс (HTML через Thymeleaf)
 │ │ ├── domain/
-│ │ │ ├── Enums.kt # EquipmentStatus, WorkOrderStatus
-│ │ │ ├── Equipment.kt # Сущность оборудования
-│ │ │ ├── Technician.kt # Сущность мастера
-│ │ │ └── WorkOrder.kt # Сущность наряд-заказа
+│ │ │ ├── EquipmentStatus.kt # Строковые константы статусов оборудования
+│ │ │ ├── WorkOrderStatus.kt # Строковые константы статусов наряд-заказов
+│ │ │ ├── Equipment.kt # Сущность оборудования (без enum)
+│ │ │ ├── Technician.kt # Сущность мастера (без enum)
+│ │ │ └── WorkOrder.kt # Сущность наряд-заказа (без enum)
 │ │ ├── dto/
 │ │ │ ├── Requests.kt # DTO входящих запросов
 │ │ │ └── Responses.kt # DTO исходящих ответов

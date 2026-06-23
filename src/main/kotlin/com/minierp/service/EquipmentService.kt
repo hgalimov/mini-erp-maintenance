@@ -1,4 +1,5 @@
 package com.minierp.service
+
 import com.minierp.domain.Equipment
 import com.minierp.domain.EquipmentStatus
 import com.minierp.dto.CreateEquipmentRequest
@@ -8,44 +9,45 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
+@Transactional
 class EquipmentService(
     private val equipmentRepository: EquipmentRepository,
 ) {
-    @Transactional(readOnly = true)
-    fun getAll() = equipmentRepository.findAll().map { EquipmentResponse.from(it) }
-
-    @Transactional(readOnly = true)
-    fun getById(id: Long) =
-        EquipmentResponse.from(
-            equipmentRepository.findById(id).orElseThrow {
-                IllegalArgumentException("Equipment not found")
-            },
-        )
-
-    @Transactional
-    fun create(req: CreateEquipmentRequest): EquipmentResponse {
-        if (equipmentRepository.existsByInventoryNumber(req.inventoryNumber)) throw IllegalArgumentException("Inventory number exists")
-        val saved =
-            equipmentRepository.save(
-                Equipment(
-                    name = req.name,
-                    inventoryNumber = req.inventoryNumber,
-                    status = req.status,
-                    location = req.location,
-                ),
+    fun create(request: CreateEquipmentRequest): EquipmentResponse {
+        val entity =
+            Equipment(
+                name = request.name,
+                inventoryNumber = request.inventoryNumber,
+                status = request.status, // строка
+                location = request.location,
             )
+        val saved = equipmentRepository.save(entity)
         return EquipmentResponse.from(saved)
     }
 
-    @Transactional
+    fun getAll(): List<EquipmentResponse> = equipmentRepository.findAll().map { EquipmentResponse.from(it) }
+
+    fun getById(id: Long): EquipmentResponse {
+        val equipment =
+            equipmentRepository
+                .findById(id)
+                .orElseThrow { throw RuntimeException("Equipment not found with id: $id") }
+        return EquipmentResponse.from(equipment)
+    }
+
     fun updateStatus(
         id: Long,
-        status: EquipmentStatus,
-    ) = EquipmentResponse.from(
-        equipmentRepository
-            .findById(id)
-            .orElseThrow {
-                IllegalArgumentException("Equipment not found")
-            }.let { equipmentRepository.save(it.copy(status = status)) },
-    )
+        newStatus: String,
+    ): EquipmentResponse {
+        require(EquipmentStatus.isValid(newStatus)) { "Invalid equipment status: $newStatus" }
+
+        val equipment =
+            equipmentRepository
+                .findById(id)
+                .orElseThrow { throw RuntimeException("Equipment not found with id: $id") }
+
+        val updated = equipment.copy(status = newStatus)
+        val saved = equipmentRepository.save(updated)
+        return EquipmentResponse.from(saved)
+    }
 }

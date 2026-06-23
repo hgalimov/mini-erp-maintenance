@@ -11,7 +11,6 @@ data class EquipmentResponse(
     val id: Long,
     val name: String,
     val inventoryNumber: String,
-    val status: EquipmentStatus,
     val statusText: String,
     val statusClass: String,
     val location: String,
@@ -24,13 +23,13 @@ data class EquipmentResponse(
                     EquipmentStatus.BROKEN -> "Сломано" to "BROKEN"
                     EquipmentStatus.MAINTENANCE -> "На обслуживании" to "MAINTENANCE"
                     EquipmentStatus.DECOMMISSIONED -> "Выведено" to "DECOMMISSIONED"
+                    else -> "Неизвестно" to "UNKNOWN"
                 }
 
             return EquipmentResponse(
                 id = entity.id ?: throw IllegalStateException("Equipment id is null"),
                 name = entity.name,
                 inventoryNumber = entity.inventoryNumber,
-                status = entity.status,
                 statusText = text,
                 statusClass = cssClass,
                 location = entity.location,
@@ -67,7 +66,6 @@ data class WorkOrderResponse(
     val technicianId: Long,
     val technicianName: String,
     val description: String,
-    val status: WorkOrderStatus,
     val statusText: String,
     val statusClass: String,
     val createdAt: LocalDateTime,
@@ -81,6 +79,7 @@ data class WorkOrderResponse(
                     WorkOrderStatus.IN_PROGRESS -> "В работе" to "IN_PROGRESS"
                     WorkOrderStatus.COMPLETED -> "Завершён" to "COMPLETED"
                     WorkOrderStatus.CANCELLED -> "Отменён" to "CANCELLED"
+                    else -> "Неизвестно" to "UNKNOWN"
                 }
 
             return WorkOrderResponse(
@@ -90,7 +89,6 @@ data class WorkOrderResponse(
                 technicianId = w.technician.id ?: throw IllegalStateException("Technician id is null"),
                 technicianName = w.technician.fullName,
                 description = w.description,
-                status = w.status,
                 statusText = text,
                 statusClass = cssClass,
                 createdAt = w.createdAt,

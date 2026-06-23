@@ -1,12 +1,8 @@
 package com.minierp.controller
 
-import com.minierp.domain.EquipmentStatus
-import com.minierp.domain.WorkOrderStatus
 import com.minierp.dto.CreateEquipmentRequest
 import com.minierp.dto.CreateTechnicianRequest
 import com.minierp.dto.CreateWorkOrderRequest
-import com.minierp.dto.EquipmentResponse
-import com.minierp.dto.TechnicianResponse
 import com.minierp.service.EquipmentService
 import com.minierp.service.TechnicianService
 import com.minierp.service.WorkOrderService
@@ -36,7 +32,7 @@ class WebController(
     // ========== ОБОРУДОВАНИЕ ==========
     @GetMapping("/equipment")
     fun equipmentList(model: Model): String {
-        val equipment: List<EquipmentResponse> = equipmentService.getAll()
+        val equipment = equipmentService.getAll() ?: emptyList()
         model.addAttribute("equipment", equipment)
         return "equipment/list"
     }
@@ -51,7 +47,7 @@ class WebController(
     fun createEquipment(
         @RequestParam name: String,
         @RequestParam inventoryNumber: String,
-        @RequestParam status: EquipmentStatus,
+        @RequestParam status: String,
         @RequestParam location: String,
         redirectAttributes: RedirectAttributes,
     ): String {
@@ -70,7 +66,7 @@ class WebController(
         @PathVariable id: Long,
         model: Model,
     ): String {
-        val equipment: EquipmentResponse = equipmentService.getById(id)
+        val equipment = equipmentService.getById(id)
         model.addAttribute("equipment", equipment)
         model.addAttribute("editMode", true)
         return "equipment/form"
@@ -79,11 +75,11 @@ class WebController(
     @PostMapping("/equipment/{id}")
     fun updateEquipment(
         @PathVariable id: Long,
-        @RequestParam status: EquipmentStatus,
+        @RequestParam status: String,
         redirectAttributes: RedirectAttributes,
     ): String {
         try {
-//            equipmentService.updateStatus(id, status)
+            equipmentService.updateStatus(id, status)
             redirectAttributes.addFlashAttribute("success", "Статус обновлён")
         } catch (e: Exception) {
             redirectAttributes.addFlashAttribute("error", "Ошибка: ${e.message}")
@@ -94,7 +90,7 @@ class WebController(
     // ========== МАСТЕРА ==========
     @GetMapping("/technicians")
     fun techniciansList(model: Model): String {
-        val technicians: List<TechnicianResponse> = technicianService.getAll()
+        val technicians = technicianService.getAll() ?: emptyList()
         model.addAttribute("technicians", technicians)
         return "technician/list"
     }
@@ -106,17 +102,11 @@ class WebController(
     fun createTechnician(
         @RequestParam fullName: String,
         @RequestParam specialization: String,
-        @RequestParam(required = false) isActive: Boolean?, // ← nullable Boolean
+        @RequestParam(required = false) isActive: Boolean?,
         redirectAttributes: RedirectAttributes,
     ): String {
         try {
-            // Если чекбокс не отмечен, isActive будет null → считаем false
-            val request =
-                CreateTechnicianRequest(
-                    fullName = fullName,
-                    specialization = specialization,
-                    isActive = isActive ?: false, // ← null превращаем в false
-                )
+            val request = CreateTechnicianRequest(fullName, specialization, isActive ?: true)
             technicianService.create(request)
             redirectAttributes.addFlashAttribute("success", "Мастер успешно создан")
         } catch (e: Exception) {
@@ -131,7 +121,7 @@ class WebController(
         redirectAttributes: RedirectAttributes,
     ): String {
         try {
-            technicianService.toggleActive(id)
+            technicianService.toggleActiveStatus(id)
             redirectAttributes.addFlashAttribute("success", "Статус активности изменён")
         } catch (e: Exception) {
             redirectAttributes.addFlashAttribute("error", "Ошибка: ${e.message}")
@@ -142,15 +132,16 @@ class WebController(
     // ========== НАРЯД-ЗАКАЗЫ ==========
     @GetMapping("/work-orders")
     fun workOrdersList(model: Model): String {
-        val workOrders = workOrderService.getAll()
+        val workOrders = workOrderService.getAll() ?: emptyList()
         model.addAttribute("workOrders", workOrders)
         return "workorder/list"
     }
 
     @GetMapping("/work-orders/new")
     fun newWorkOrderForm(model: Model): String {
-        val equipment: List<EquipmentResponse> = equipmentService.getAll()
-        val technicians: List<TechnicianResponse> = technicianService.getAll().filter { it.isActive }
+        val equipment = equipmentService.getAll() ?: emptyList()
+        val allTechnicians = technicianService.getAll() ?: emptyList()
+        val technicians = allTechnicians.filter { it.isActive }
         model.addAttribute("equipment", equipment)
         model.addAttribute("technicians", technicians)
         return "workorder/form"
@@ -176,7 +167,7 @@ class WebController(
     @PostMapping("/work-orders/{id}/status")
     fun updateWorkOrderStatus(
         @PathVariable id: Long,
-        @RequestParam status: WorkOrderStatus,
+        @RequestParam status: String,
         redirectAttributes: RedirectAttributes,
     ): String {
         try {

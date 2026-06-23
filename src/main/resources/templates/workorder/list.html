@@ -32,6 +32,11 @@
             </tr>
             </thead>
             <tbody>
+            <tr th:if="${workOrders == null or #lists.isEmpty(workOrders)}">
+                <td colspan="7" style="text-align: center; color: #999; padding: 30px;">
+                    Нет наряд-заказов. <a th:href="@{/web/work-orders/new}">Создать первый</a>
+                </td>
+            </tr>
             <th:block th:if="${workOrders != null and not #lists.isEmpty(workOrders)}">
                 <tr th:each="wo : ${workOrders}">
                     <td th:text="${wo.id}"></td>
@@ -45,32 +50,24 @@
                     </td>
                     <td th:text="${#temporals.format(wo.createdAt, 'dd.MM.yyyy HH:mm')}"></td>
                     <td>
-                        <div th:if="${wo.status.name() != 'COMPLETED' and wo.status.name() != 'CANCELLED'}">
-                            <form th:action="@{/web/work-orders/{id}/status(id=${wo.id})}" method="post"
-                                  style="display:inline;">
+                        <th:block th:if="${wo.statusClass != 'COMPLETED' and wo.statusClass != 'CANCELLED'}">
+                            <form th:action="@{/web/work-orders/{id}/status(id=${wo.id})}" method="post" style="display:inline;">
                                 <input type="hidden" name="status" value="IN_PROGRESS">
                                 <button type="submit" class="btn btn-small btn-warning">В работу</button>
                             </form>
-                            <form th:action="@{/web/work-orders/{id}/status(id=${wo.id})}" method="post"
-                                  style="display:inline;">
+                            <form th:action="@{/web/work-orders/{id}/status(id=${wo.id})}" method="post" style="display:inline;">
                                 <input type="hidden" name="status" value="COMPLETED">
                                 <button type="submit" class="btn btn-small btn-success">Завершить</button>
                             </form>
-                            <form th:action="@{/web/work-orders/{id}/status(id=${wo.id})}" method="post"
-                                  style="display:inline;">
+                            <form th:action="@{/web/work-orders/{id}/status(id=${wo.id})}" method="post" style="display:inline;">
                                 <input type="hidden" name="status" value="CANCELLED">
                                 <button type="submit" class="btn btn-small btn-danger">Отменить</button>
                             </form>
-                        </div>
-                        <em th:if="${wo.status.name() == 'COMPLETED' or wo.status.name() == 'CANCELLED'}">Завершён</em>
+                        </th:block>
+                        <em th:if="${wo.statusClass == 'COMPLETED' or wo.statusClass == 'CANCELLED'}">Завершён</em>
                     </td>
                 </tr>
             </th:block>
-            <tr th:if="${#lists.isEmpty(workOrders)}">
-                <td colspan="7" style="text-align: center; color: #999; padding: 30px;">
-                    Нет наряд-заказов. <a th:href="@{/web/work-orders/new}">Создать первый</a>
-                </td>
-            </tr>
             </tbody>
         </table>
     </main>

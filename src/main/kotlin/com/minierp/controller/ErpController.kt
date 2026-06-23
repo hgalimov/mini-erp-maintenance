@@ -1,7 +1,5 @@
 package com.minierp.controller
 
-import com.minierp.domain.EquipmentStatus
-import com.minierp.domain.WorkOrderStatus
 import com.minierp.dto.CreateEquipmentRequest
 import com.minierp.dto.CreateTechnicianRequest
 import com.minierp.dto.CreateWorkOrderRequest
@@ -31,7 +29,7 @@ class ErpController(
     private val technicianService: TechnicianService,
     private val workOrderService: WorkOrderService,
 ) {
-    // ========== Equipment ==========
+    // Equipment
     @GetMapping("/equipment")
     fun getAllEquipment(): ResponseEntity<List<EquipmentResponse>> = ResponseEntity.ok(equipmentService.getAll())
 
@@ -48,10 +46,10 @@ class ErpController(
     @PatchMapping("/equipment/{id}/status")
     fun updateEquipmentStatus(
         @PathVariable id: Long,
-        @RequestParam status: EquipmentStatus,
+        @RequestParam status: String,
     ): ResponseEntity<EquipmentResponse> = ResponseEntity.ok(equipmentService.updateStatus(id, status))
 
-    // ========== Technicians ==========
+    // Technicians
     @GetMapping("/technicians")
     fun getAllTechnicians(): ResponseEntity<List<TechnicianResponse>> = ResponseEntity.ok(technicianService.getAll())
 
@@ -63,19 +61,14 @@ class ErpController(
     @PatchMapping("/technicians/{id}/toggle-active")
     fun toggleTechnicianStatus(
         @PathVariable id: Long,
-    ): ResponseEntity<TechnicianResponse> = ResponseEntity.ok(technicianService.toggleActive(id))
+    ): ResponseEntity<TechnicianResponse> = ResponseEntity.ok(technicianService.toggleActiveStatus(id))
 
-    // ========== Work Orders ==========
+    // Work Orders
     @GetMapping("/work-orders")
     fun getAllWorkOrders(
-        @RequestParam(required = false) status: WorkOrderStatus?,
+        @RequestParam(required = false) status: String?,
     ): ResponseEntity<List<WorkOrderResponse>> {
-        val response: List<WorkOrderResponse> =
-            if (status != null) {
-                workOrderService.getByStatus(status)
-            } else {
-                workOrderService.getAll()
-            }
+        val response = if (status != null) workOrderService.getByStatus(status) else workOrderService.getAll()
         return ResponseEntity.ok(response)
     }
 

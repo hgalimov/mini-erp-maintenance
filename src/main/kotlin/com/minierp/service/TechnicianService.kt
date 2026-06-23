@@ -1,4 +1,5 @@
 package com.minierp.service
+
 import com.minierp.domain.Technician
 import com.minierp.dto.CreateTechnicianRequest
 import com.minierp.dto.TechnicianResponse
@@ -7,29 +8,31 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
+@Transactional
 class TechnicianService(
-    private val repository: TechnicianRepository,
+    private val technicianRepository: TechnicianRepository,
 ) {
-    @Transactional(readOnly = true)
-    fun getAll() = repository.findAll().map { TechnicianResponse.from(it) }
+    fun create(request: CreateTechnicianRequest): TechnicianResponse {
+        val entity =
+            Technician(
+                fullName = request.fullName,
+                specialization = request.specialization,
+                isActive = request.isActive,
+            )
+        val saved = technicianRepository.save(entity)
+        return TechnicianResponse.from(saved)
+    }
 
-    @Transactional fun create(req: CreateTechnicianRequest) =
-        TechnicianResponse.from(
-            repository.save(
-                Technician(
-                    fullName = req.fullName,
-                    specialization = req.specialization,
-                    isActive = req.isActive,
-                ),
-            ),
-        )
+    fun getAll(): List<TechnicianResponse> = technicianRepository.findAll().map { TechnicianResponse.from(it) }
 
-    @Transactional fun toggleActive(id: Long) =
-        TechnicianResponse.from(
-            repository
+    fun toggleActiveStatus(id: Long): TechnicianResponse {
+        val technician =
+            technicianRepository
                 .findById(id)
-                .orElseThrow {
-                    IllegalArgumentException("Technician not found")
-                }.let { repository.save(it.copy(isActive = !it.isActive)) },
-        )
+                .orElseThrow { throw RuntimeException("Technician not found with id: $id") }
+
+        val updated = technician.copy(isActive = !technician.isActive)
+        val saved = technicianRepository.save(updated)
+        return TechnicianResponse.from(saved)
+    }
 }

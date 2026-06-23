@@ -1,15 +1,10 @@
 package com.minierp
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.builder.SpringApplicationBuilder
 import org.springframework.boot.runApplication
-import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 
 @SpringBootApplication
-class MiniErpApplication : SpringBootServletInitializer() {
-    override fun configure(application: SpringApplicationBuilder): SpringApplicationBuilder =
-        application.sources(MiniErpApplication::class.java)
-}
+class MiniErpApplication
 
 fun main(args: Array<String>) {
     runApplication<MiniErpApplication>(*args)
