@@ -21,9 +21,9 @@
                 <select name="equipmentId" required>
                     <option value="">-- Выберите оборудование --</option>
                     <th:block th:if="${equipment != null and !#lists.isEmpty(equipment)}">
-                        <option th:each="eq : ${equipment}"
-                                th:value="${eq.id}"
-                                th:text="${eq.name} + ' (' + ${eq.inventoryNumber} + ')'"></option>
+                        <option th:each="equ : ${equipment}"
+                                th:value="${equ.id}"
+                                th:text="${equ.name} + ' (' + ${equ.inventoryNumber} + ')'"></option>
                     </th:block>
                 </select>
             </label>

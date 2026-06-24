@@ -48,7 +48,7 @@
                     </td>
                 </tr>
             </th:block>
-            <tr th:if="${#lists.isEmpty(technicians)}">
+            <tr th:if="${technicians == null or #lists.isEmpty(technicians)}">
                 <td colspan="5" style="text-align: center; color: #999; padding: 30px;">
                     Нет мастеров. <a th:href="@{/web/technicians/new}">Добавить первого</a>
                 </td>

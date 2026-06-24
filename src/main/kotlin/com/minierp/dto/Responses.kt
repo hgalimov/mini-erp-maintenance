@@ -17,6 +17,19 @@ data class EquipmentResponse(
 ) {
     companion object {
         fun from(entity: Equipment): EquipmentResponse {
+            // Добавим отладку
+            println("Converting Equipment to Response: id=${entity.id}, name=${entity.name}, status=${entity.status}")
+
+            // Проверим, что id не null
+            if (entity.id == null) {
+                throw IllegalStateException("Equipment id is null for entity with name: ${entity.name}")
+            }
+
+            // Проверим, что status не null
+            if (entity.status.isBlank()) {
+                throw IllegalStateException("Equipment status is blank for entity with id: ${entity.id}")
+            }
+
             val (text, cssClass) =
                 when (entity.status) {
                     EquipmentStatus.ACTIVE -> "Активно" to "ACTIVE"
@@ -27,7 +40,7 @@ data class EquipmentResponse(
                 }
 
             return EquipmentResponse(
-                id = entity.id ?: throw IllegalStateException("Equipment id is null"),
+                id = entity.id, // уже проверили, что не null
                 name = entity.name,
                 inventoryNumber = entity.inventoryNumber,
                 statusText = text,

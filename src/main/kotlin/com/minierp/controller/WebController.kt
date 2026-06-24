@@ -29,7 +29,7 @@ class WebController(
     @GetMapping("/home")
     fun homePage(): String = "index"
 
-    // ========== ОБОРУДОВАНИЕ ==========
+    // ========== ОБОРУДОВАНИЕ (через Thymeleaf) ==========
     @GetMapping("/equipment")
     fun equipmentList(model: Model): String {
         val equipment = equipmentService.getAll() ?: emptyList()
@@ -87,7 +87,7 @@ class WebController(
         return "redirect:/web/equipment"
     }
 
-    // ========== МАСТЕРА ==========
+    // ========== МАСТЕРА (через Thymeleaf) ==========
     @GetMapping("/technicians")
     fun techniciansList(model: Model): String {
         val technicians = technicianService.getAll() ?: emptyList()
@@ -129,7 +129,7 @@ class WebController(
         return "redirect:/web/technicians"
     }
 
-    // ========== НАРЯД-ЗАКАЗЫ ==========
+    // ========== НАРЯД-ЗАКАЗЫ (через Thymeleaf) ==========
     @GetMapping("/work-orders")
     fun workOrdersList(model: Model): String {
         val workOrders = workOrderService.getAll() ?: emptyList()

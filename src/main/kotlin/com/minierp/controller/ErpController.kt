@@ -47,7 +47,15 @@ class ErpController(
     fun updateEquipmentStatus(
         @PathVariable id: Long,
         @RequestParam status: String,
-    ): ResponseEntity<EquipmentResponse> = ResponseEntity.ok(equipmentService.updateStatus(id, status))
+    ): ResponseEntity<EquipmentResponse> {
+        // Проверяем валидность статуса
+        if (!com.minierp.domain.EquipmentStatus
+                .isValid(status)
+        ) {
+            throw IllegalArgumentException("Invalid equipment status: $status")
+        }
+        return ResponseEntity.ok(equipmentService.updateStatus(id, status))
+    }
 
     // Technicians
     @GetMapping("/technicians")
@@ -68,7 +76,17 @@ class ErpController(
     fun getAllWorkOrders(
         @RequestParam(required = false) status: String?,
     ): ResponseEntity<List<WorkOrderResponse>> {
-        val response = if (status != null) workOrderService.getByStatus(status) else workOrderService.getAll()
+        val response =
+            if (status != null) {
+                if (!com.minierp.domain.WorkOrderStatus
+                        .isValid(status)
+                ) {
+                    throw IllegalArgumentException("Invalid work order status: $status")
+                }
+                workOrderService.getByStatus(status)
+            } else {
+                workOrderService.getAll()
+            }
         return ResponseEntity.ok(response)
     }
 

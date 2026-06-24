@@ -8,7 +8,7 @@
 <body>
 <div class="container">
     <header>
-        <h1 th:text="${editMode} ? '⚙️ Изменить статус оборудования' : '⚙️ Новое оборудование'"></h1>
+        <h1 th:text="${editMode == true} ? '⚙️ Изменить статус оборудования' : '⚙️ Новое оборудование'"></h1>
         <nav>
             <a th:href="@{/web/equipment}">← К списку</a>
         </nav>
@@ -17,7 +17,7 @@
         <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
 
         <!-- Режим создания -->
-        <form th:if="${!editMode}" th:action="@{/web/equipment}" method="post" class="form">
+        <form th:if="${editMode != true}" th:action="@{/web/equipment}" method="post" class="form">
             <label>Название:
                 <input type="text" name="name" required>
             </label>
@@ -39,16 +39,16 @@
         </form>
 
         <!-- Режим редактирования статуса -->
-        <form th:if="${editMode}" th:action="@{/web/equipment/{id}(id=${equipment.id})}" method="post" class="form">
+        <form th:if="${editMode == true and equipment != null}" th:action="@{/web/equipment/{id}(id=${equipment.id})}" method="post" class="form">
             <p><strong>Название:</strong> <span th:text="${equipment.name}"></span></p>
             <p><strong>Инв. номер:</strong> <span th:text="${equipment.inventoryNumber}"></span></p>
             <p><strong>Локация:</strong> <span th:text="${equipment.location}"></span></p>
             <label>Статус:
                 <select name="status" required>
-                    <option value="ACTIVE" th:selected="${equipment.status.name() == 'ACTIVE'}">Активно</option>
-                    <option value="BROKEN" th:selected="${equipment.status.name() == 'BROKEN'}">Сломано</option>
-                    <option value="MAINTENANCE" th:selected="${equipment.status.name() == 'MAINTENANCE'}">На обслуживании</option>
-                    <option value="DECOMMISSIONED" th:selected="${equipment.status.name() == 'DECOMMISSIONED'}">Выведено из эксплуатации</option>
+                    <option value="ACTIVE" th:selected="${equipment.statusClass == 'ACTIVE'}">Активно</option>
+                    <option value="BROKEN" th:selected="${equipment.statusClass == 'BROKEN'}">Сломано</option>
+                    <option value="MAINTENANCE" th:selected="${equipment.statusClass == 'MAINTENANCE'}">На обслуживании</option>
+                    <option value="DECOMMISSIONED" th:selected="${equipment.statusClass == 'DECOMMISSIONED'}">Выведено из эксплуатации</option>
                 </select>
             </label>
             <button type="submit" class="btn btn-primary">Сохранить</button>

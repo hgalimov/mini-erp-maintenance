@@ -77,10 +77,7 @@ class WorkOrderService(
             when (newStatus) {
                 WorkOrderStatus.COMPLETED -> {
                     // Change equipment back to ACTIVE when work order is completed
-                    if (workOrder.equipment.status != "MAINTENANCE") {
-                        // Just in case, ensure equipment is in MAINTENANCE before completing
-                        equipmentRepository.save(workOrder.equipment.copy(status = "MAINTENANCE"))
-                    }
+                    equipmentRepository.save(workOrder.equipment.copy(status = "ACTIVE"))
                     workOrder.copy(
                         status = newStatus,
                         completedAt = LocalDateTime.now(),

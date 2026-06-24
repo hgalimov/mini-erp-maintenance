@@ -31,27 +31,27 @@
             </tr>
             </thead>
             <tbody>
-            <tr th:if="${equipment == null or and #lists.isEmpty(equipment)}">
+            <th:block th:if="${equipment != null and not #lists.isEmpty(equipment)}">
+                <tr th:each="equ : ${equipment}">
+                    <td th:text="${equ.id}"></td>
+                    <td th:text="${equ.name}"></td>
+                    <td th:text="${equ.inventoryNumber}"></td>
+                    <td>
+                        <span class="status"
+                              th:classappend="${equ.statusClass}"
+                              th:text="${equ.statusText}"></span>
+                    </td>
+                    <td th:text="${equ.location}"></td>
+                    <td>
+                        <a th:href="@{/web/equipment/{id}/edit(id=${equ.id})}" class="btn btn-small">Изменить статус</a>
+                    </td>
+                </tr>
+            </th:block>
+            <tr th:if="${equipment == null or #lists.isEmpty(equipment)}">
                 <td colspan="6" style="text-align: center; color: #999; padding: 30px;">
                     Нет оборудования. <a th:href="@{/web/equipment/new}">Добавить первое</a>
                 </td>
             </tr>
-            <th:block th:if="${equipment != null and not #lists.isEmpty(equipment)}">
-                <tr th:each="eq : ${equipment}">
-                    <td th:text="${eq.id}"></td>
-                    <td th:text="${eq.name}"></td>
-                    <td th:text="${eq.inventoryNumber}"></td>
-                    <td>
-                        <span class="status"
-                              th:classappend="${eq.statusClass}"
-                              th:text="${eq.statusText}"></span>
-                    </td>
-                    <td th:text="${eq.location}"></td>
-                    <td>
-                        <a th:href="@{/web/equipment/{id}/edit(id=${eq.id})}" class="btn btn-small">Изменить статус</a>
-                    </td>
-                </tr>
-            </th:block>
             </tbody>
         </table>
     </main>

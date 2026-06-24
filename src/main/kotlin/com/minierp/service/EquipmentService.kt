@@ -14,18 +14,26 @@ class EquipmentService(
     private val equipmentRepository: EquipmentRepository,
 ) {
     fun create(request: CreateEquipmentRequest): EquipmentResponse {
+        // Проверяем уникальность инвентарного номера
+        if (equipmentRepository.existsByInventoryNumber(request.inventoryNumber)) {
+            throw IllegalArgumentException("Оборудование с инвентарным номером ${request.inventoryNumber} уже существует")
+        }
+
         val entity =
             Equipment(
                 name = request.name,
                 inventoryNumber = request.inventoryNumber,
-                status = request.status, // строка
+                status = request.status,
                 location = request.location,
             )
         val saved = equipmentRepository.save(entity)
         return EquipmentResponse.from(saved)
     }
 
-    fun getAll(): List<EquipmentResponse> = equipmentRepository.findAll().map { EquipmentResponse.from(it) }
+    fun getAll(): List<EquipmentResponse> {
+        val all = equipmentRepository.findAll()
+        return all.map { EquipmentResponse.from(it) }
+    }
 
     fun getById(id: Long): EquipmentResponse {
         val equipment =
@@ -47,6 +55,31 @@ class EquipmentService(
                 .orElseThrow { throw RuntimeException("Equipment not found with id: $id") }
 
         val updated = equipment.copy(status = newStatus)
+        val saved = equipmentRepository.save(updated)
+        return EquipmentResponse.from(saved)
+    }
+
+    fun update(
+        id: Long,
+        request: CreateEquipmentRequest,
+    ): EquipmentResponse {
+        // Проверяем уникальность инвентарного номера (кроме текущего оборудования)
+        if (equipmentRepository.existsByInventoryNumber(request.inventoryNumber)) {
+            throw IllegalArgumentException("Оборудование с инвентарным номером ${request.inventoryNumber} уже существует")
+        }
+
+        val equipment =
+            equipmentRepository
+                .findById(id)
+                .orElseThrow { throw RuntimeException("Equipment not found with id: $id") }
+
+        val updated =
+            equipment.copy(
+                name = request.name,
+                inventoryNumber = request.inventoryNumber,
+                status = request.status,
+                location = request.location,
+            )
         val saved = equipmentRepository.save(updated)
         return EquipmentResponse.from(saved)
     }
